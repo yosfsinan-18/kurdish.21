@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Legends Game - Badinan Park</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #0f172a; color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+        .hidden { display: none !important; }
+        
+        /* Auth Screen */
+        #auth-screen { display: flex; justify-content: center; align-items: center; height: 100vh; width: 100vw; background: radial-gradient(circle, #1e293b 0%, #0f172a 100%); }
+        .auth-card { background: #1e293b; padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 100%; max-width: 400px; text-align: center; border: 1px solid #334155; }
+        .auth-card h2 { margin-bottom: 24px; color: #38bdf8; }
+        .auth-card input { width: 100%; padding: 12px; margin-bottom: 16px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: #fff; font-size: 16px; }
+        .auth-card button { width: 100%; padding: 12px; border-radius: 8px; border: none; background: #2563eb; color: #fff; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .auth-card button:hover { background: #1d4ed8; }
+
+        /* Main Game Layout */
+        #game-screen { width: 100%; max-width: 600px; display: flex; flex-direction: column; min-height: 100vh; padding-bottom: 70px; }
+        header { background: #1e293b; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; position: sticky; top: 0; z-index: 10; }
+        .user-stats span { margin-left: 15px; font-weight: bold; color: #fbbf24; }
+        .user-stats span.dollar { color: #34d399; }
+
+        .container { padding: 15px; flex: 1; }
+        .section { display: none; }
+        .section.active { display: block; }
+
+        /* Bottom Nav */
+        nav { position: fixed; bottom: 0; width: 100%; max-width: 600px; background: #1e293b; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #334155; z-index: 10; }
+        nav button { background: none; border: none; color: #94a3b8; font-size: 14px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        nav button.active, nav button:hover { color: #38bdf8; }
+
+        /* Box / Store Screen */
+        .box-container { text-align: center; margin-top: 20px; }
+        .box-box { width: 160px; height: 160px; background: linear-gradient(135deg, #f59e0b, #d97706); margin: 0 auto 15px; border-radius: 20px; display: flex; justify-content: center; align-items: center; font-size: 50px; box-shadow: 0 0 30px rgba(245, 158, 11, 0.4); animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        .btn-group { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
+        .btn { padding: 12px 24px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; color: #fff; }
+        .btn-coin { background: #f59e0b; }
+        .btn-coin:hover { background: #d97706; }
+
+        /* Players Grid */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; margin-top: 15px; }
+        .player-card { background: #1e293b; border-radius: 12px; padding: 10px; text-align: center; border: 1px solid #334155; position: relative; }
+        .player-card img { width: 65px; height: 65px; border-radius: 50%; object-fit: cover; margin-bottom: 6px; border: 2px solid #f59e0b; }
+        .player-card h4 { font-size: 12px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #f8fafc; }
+        .player-card p { font-size: 10px; color: #fbbf24; }
+        .player-card .rating { position: absolute; top: 6px; right: 6px; background: #f59e0b; color: #0f172a; font-size: 10px; padding: 2px 5px; border-radius: 4px; font-weight: bold; }
+
+        /* Tashkile & Sub Grid Layout (11 Starter + 15 Subs + 10,000 Extra slots) */
+        .slot-section { margin-bottom: 20px; }
+        .slot-section h3 { margin-bottom: 10px; color: #38bdf8; font-size: 16px; }
+        .tashkile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; }
+        .slot-box { background: #0f172a; border: 1px dashed #475569; border-radius: 8px; height: 90px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 11px; color: #94a3b8; text-align: center; padding: 5px; }
+
+        /* Modal for Opening */
+        #modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 100; flex-direction: column; }
+        .reveal-box { background: #1e293b; padding: 30px; border-radius: 16px; text-align: center; border: 2px solid #f59e0b; max-width: 350px; width: 90%; }
+        .reveal-box img { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #f59e0b; margin: 15px 0; object-fit: cover; }
+        
+        /* Daily Reward Box */
+        .daily-box { background: #1e293b; padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 15px; border: 1px solid #334155; }
+        .shop-item { background: #1e293b; padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #334155; }
+    </style>
+</head>
+<body>
+
+    <!-- AUTH SCREEN -->
+    <div id="auth-screen">
+        <div class="auth-card">
+            <h2>چاتناڤێ خۆ تومار بکە</h2>
+            <input type="text" id="username-input" placeholder="Username (e.g. zebari.karim)...">
+            <input type="password" id="password-input" placeholder="Password...">
+            <button onclick="login()">چوونە ژوور</button>
+        </div>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div id="game-screen" class="hidden">
+        <header>
+            <div id="user-display" style="font-weight: bold; color: #38bdf8;"></div>
+            <div class="user-stats">
+                <span id="stat-coins">🪙 0</span>
+                <span class="dollar" id="stat-dollars">💵 $0</span>
+            </div>
+        </header>
+
+        <div class="container">
+            <!-- BOX SECTION -->
+            <div id="section-box" class="section active">
+                <div class="daily-box">
+                    <h3>دیارییا ڕۆژانە (٢٥٠ ڕۆژ)</h3>
+                    <p id="daily-status" style="font-size: 13px; color: #94a3b8; margin: 5px 0;">ڕۆژا ١ - ١٠٠ ملیۆن کۆین وەربگرە</p>
+                    <button class="btn btn-coin" style="padding: 8px 16px; font-size: 13px;" onclick="claimDaily()">وەرگرتن</button>
+                </div>
+                <div class="box-container">
+                    <div class="box-box">🎁</div>
+                    <h3>سندۆقا ئەفسانەیی (هەمی ١٠٠٪)</h3>
+                    <p style="color: #94a3b8; font-size: 13px; margin-bottom: 15px;">نرخ: ١٠٠ کۆین (هەموو یاریزان ئافسانەن)</p>
+                    <div class="btn-group">
+                        <button class="btn btn-coin" onclick="openBox(1)">ڤەکرا ١</button>
+                        <button class="btn btn-coin" onclick="openBox(10)">ڤەکرا ١٠</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INVENTORY SECTION -->
+            <div id="section-inventory" class="section">
+                <h2>یاریزانێن من (Inventory)</h2>
+                <div class="grid" id="player-grid"></div>
+            </div>
+
+            <!-- TASHKILE SECTION -->
+            <div id="section-tashkile" class="section">
+                <div class="slot-section">
+                    <h3>١١ یاریزانێن سەرەکی (Starter 11)</h3>
+                    <div class="tashkile-grid" id="starter-grid"></div>
+                </div>
+                <div class="slot-section">
+                    <h3>١٥ یاریزانێن یەدەک (Substitutes 15)</h3>
+                    <div class="tashkile-grid" id="subs-grid"></div>
+                </div>
+                <div class="slot-section">
+                    <h3>کۆگەها زێدە (تا ١٠,٠٠٠ جهـ بۆ یاریزانا)</h3>
+                    <div class="tashkile-grid" id="extra-grid"></div>
+                </div>
+            </div>
+
+            <!-- SHOP SECTION -->
+            <div id="section-shop" class="section">
+                <h2>دۆلار و کڕینا ستێران</h2>
+                <div class="shop-item">
+                    <div>
+                        <h4>کریستیانۆ ڕۆنالدۆ (Ronaldo)</h4>
+                        <p style="color: #94a3b8; font-size: 12px;">نرخ: ١٠٠ دۆلار</p>
+                    </div>
+                    <button class="btn btn-coin" onclick="buyPlayer('Cristiano Ronaldo')">کڕین</button>
+                </div>
+                <div class="shop-item">
+                    <div>
+                        <h4>لێۆ مێسی (Messi)</h4>
+                        <p style="color: #94a3b8; font-size: 12px;">نرخ: ١٠٠ دۆلار</p>
+                    </div>
+                    <button class="btn btn-coin" onclick="buyPlayer('Lionel Messi')">کڕین</button>
+                </div>
+            </div>
+        </div>
+
+        <nav>
+            <button class="active" onclick="switchTab('box', this)">سندۆق</button>
+            <button onclick="switchTab('inventory', this)">یاریزان</button>
+            <button onclick="switchTab('tashkile', this)">تەشکیلە</button>
+            <button onclick="switchTab('shop', this)">دۆلار</button>
+        </nav>
+    </div>
+
+    <!-- REVEAL MODAL -->
+    <div id="modal" class="hidden">
+        <div class="reveal-box">
+            <h3>یاریزانێ ئەفسانەیی دەرکەت!</h3>
+            <div id="modal-content"></div>
+            <button class="btn btn-coin" onclick="closeModal()">باشە</button>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let userData = {
+            coins: 5000,
+            dollars: 0,
+            inventory: [],
+            dailyDay: 1
+        };
+
+        // Generating 999 Legendary Players with custom numbers and names
+        const allPlayers = [];
+        const legendNames = ["Cristiano Ronaldo", "Lionel Messi", "Lamine Yamal", "Neymar Jr", "Kylian Mbappe", "Jude Bellingham", "Kevin De Bruyne", "Zinedine Zidane", "Ronaldinho", "Pelé", "Maradona"];
+        
+        for(let i = 1; i <= 999; i++) {
+            let pName = i <= legendNames.length ? legendNames[i-1] : `Legend Player ${i}`;
+            let jerseyNum = (i % 99) + 1;
+            allPlayers.push({
+                id: i,
+                name: pName,
+                jersey: jerseyNum,
+                rating: Math.floor(Math.random() * 5) + 95, // Ratings from 95 to 99 (All Legend)
+                image: `https://picsum.photos/seed/legend${i}/150`,
+                type: "afsana"
+            });
+        }
+
+        function login() {
+            const user = document.getElementById('username-input').value.trim();
+            const pass = document.getElementById('password-input').value.trim();
+            
+            if(!user || !pass) {
+                alert("ناڤ و پاسووردی بنڤیسە!");
+                return;
+            }
+
+            currentUser = user;
+
+            // Assigned Special Balances based on user requirements
+            if(user === "zebari.karim") {
+                userData.dollars = 2000000;
+            } else if(user === "yuseef.surchi") {
+                userData.dollars = 5000000;
+            }
+
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            document.getElementById('user-display').innerText = user;
+            updateUI();
+            buildTashkileSlots();
+        }
+
+        function updateUI() {
+            document.getElementById('stat-coins').innerText = `🪙 ${userData.coins.toLocaleString()}`;
+            document.getElementById('stat-dollars').innerText = `💵 $${userData.dollars.toLocaleString()}`;
+            
+            const grid = document.getElementById('player-grid');
+            grid.innerHTML = '';
+            userData.inventory.forEach(p => {
+                grid.innerHTML += `
+                    <div class="player-card">
+                        <span class="rating">${p.rating}</span>
+                        <img src="${p.image}" alt="${p.name}">
+                        <h4>${p.name}</h4>
+                        <p>درێس #${p.jersey}</p>
+                    </div>
+                `;
+            });
+        }
+
+        function buildTashkileSlots() {
+            // Build 11 Starter slots
+            const starterGrid = document.getElementById('starter-grid');
+            starterGrid.innerHTML = '';
+            for(let i=1; i<=11; i++) {
+                starterGrid.innerHTML += `<div class="slot-box">سەرەکی ${i}</div>`;
+            }
+
+            // Build 15 Subs slots
+            const subsGrid = document.getElementById('subs-grid');
+            subsGrid.innerHTML = '';
+            for(let i=1; i<=15; i++) {
+                subsGrid.innerHTML += `<div class="slot-box">یەدەک ${i}</div>`;
+            }
+
+            // Build Extra slots up to 10,000 capacity layout demo
+            const extraGrid = document.getElementById('extra-grid');
+            extraGrid.innerHTML = '';
+            for(let i=1; i<=20; i++) { // Showing visual representation slots
+                extraGrid.innerHTML += `<div class="slot-box">جهـ #${i}</div>`;
+            }
+        }
+
+        function switchTab(tabName, btn) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+            document.getElementById(`section-${tabName}`).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        function openBox(count) {
+            const cost = count * 100;
+            if(userData.coins < cost) {
+                alert("کۆینێن تە تێر نینن!");
+                return;
+            }
+            userData.coins -= cost;
+            
+            let wonPlayers = [];
+            for(let i=0; i<count; i++) {
+                // 100% chance to win any of the 999 legendary players randomly
+                let randomIndex = Math.floor(Math.random() * allPlayers.length);
+                let chosen = allPlayers[randomIndex];
+                
+                userData.inventory.push(chosen);
+                wonPlayers.push(chosen);
+            }
+
+            updateUI();
+            showModal(wonPlayers);
+        }
+
+        function showModal(players) {
+            const modal = document.getElementById('modal');
+            const content = document.getElementById('modal-content');
+            content.innerHTML = '';
+            players.forEach(p => {
+                content.innerHTML += `
+                    <img src="${p.image}" alt="${p.name}">
+                    <h4 style="color:#fff;">${p.name}</h4>
+                    <p style="color:#fbbf24; font-size:12px;">Rate: ${p.rating} | درێس: #${p.jersey}</p>
+                `;
+            });
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+        }
+
+        function claimDaily() {
+            if(userData.dailyDay > 250) {
+                alert("تە هەمی ٢٥٠ ڕۆژ وەربگرتن!");
+                return;
+            }
+            userData.coins += 100000000; // 100M Coins
+            userData.dailyDay++;
+            if(userData.dailyDay <= 250) {
+                document.getElementById('daily-status').innerText = `ڕۆژا ${userData.dailyDay} - ١٠٠ ملیۆن کۆین وەربگرە`;
+            } else {
+                document.getElementById('daily-status').innerText = "دیاری تمام بوون!";
+            }
+            updateUI();
+            alert("تە ١٠٠ ملیۆن کۆین سەرکەفتن وەرگرت!");
+        }
+
+        function buyPlayer(playerName) {
+            if(userData.dollars < 100) {
+                alert("دۆلارێ تە نینە!");
+                return;
+            }
+            userData.dollars -= 100;
+            let player = allPlayers.find(p => p.name === playerName);
+            if(player) {
+                userData.inventory.push(player);
+                updateUI();
+                alert(`${playerName} هاتە کڕین!`);
+            }
+        }
+    </script>
+</body>
+</html>
